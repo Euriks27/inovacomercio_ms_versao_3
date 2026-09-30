@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InovaComércio MS v6.0 — ERP & Sustentabilidade</title>
+
+    <!-- Tailwind -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0fdf4',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            700: '#15803d',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Plotly -->
+    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+
+    <!-- jsPDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    <!-- CSS local -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="h-full bg-slate-50 text-slate-800 flex flex-col antialiased">
+
+    <!-- ================================================================ -->
+    <!-- MODAL DE LOGIN                                                    -->
+    <!-- ================================================================ -->
+    <div id="loginOverlay" class="fixed inset-0 bg-slate-900/95 flex items-center justify-center z-50">
+        <div class="bg-white p-8 rounded-2xl shadow-2xl max-w-md w-full mx-4">
+            <div class="text-center mb-6">
+                <div class="inline-block bg-emerald-600 text-white p-3 rounded-xl shadow-lg mb-3">
+                    <i class="fa-solid fa-cash-register text-2xl"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-slate-800">InovaComércio MS</h2>
+                <p class="text-sm text-slate-500 mt-1">Autenticação Corporativa</p>
+            </div>
+
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold uppercase text-slate-600 mb-1">E-mail</label>
+                    <input id="loginEmail" type="email"
+                           value="gestor@inovacomercio.ms"
+                           class="w-full p-3 rounded-xl border border-slate-300 bg-slate-50 focus:ring-2 focus:ring-emerald-500 outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold uppercase text-slate-600 mb-1">Senha</label>
+                    <input id="loginSenha" type="password"
+                           value="123456"
+                           class="w-full p-3 rounded-xl border border-slate-300 bg-slate-50 focus:ring-2 focus:ring-emerald-500 outline-none">
+                </div>
+                <button onclick="tentarLogin()"
+                        class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-3 rounded-xl transition shadow-lg shadow-emerald-600/20">
+                    Entrar no Sistema
+                </button>
+                <p id="loginErro" class="text-rose-500 text-xs text-center hidden font-medium mt-2"></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================================================================ -->
+    <!-- HEADER                                                            -->
+    <!-- ================================================================ -->
+    <header class="bg-slate-900 text-white shadow-md">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <div class="bg-emerald-600 text-white p-2 rounded-lg shadow">
+                    <i class="fa-solid fa-cash-register text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg tracking-tight">InovaComércio MS v6.0</h1>
+                    <p class="text-xs text-slate-400">ERP Integrado · Campo Grande - MS</p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-3">
+                <div class="text-right hidden sm:block">
+                    <span class="block text-xs font-semibold text-emerald-400" id="headerUser">—</span>
+                    <span class="text-xs text-slate-300">Sessão JWT</span>
+                </div>
+                <button onclick="alternarTema()"
+                        class="bg-slate-800 hover:bg-slate-700 p-2 rounded-lg text-slate-300 transition"
+                        title="Alternar tema">
+                    <i class="fa-solid fa-moon" id="themeIcon"></i>
+                </button>
+                <button onclick="Auth.logout()"
+                        class="bg-slate-800 hover:bg-rose-700 p-2 rounded-lg text-slate-300 transition"
+                        title="Sair">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- ================================================================ -->
+    <!-- NAVEGAÇÃO                                                         -->
+    <!-- ================================================================ -->
+    <nav class="bg-white border-b border-slate-200 shadow-sm overflow-x-auto">
+        <div class="max-w-7xl mx-auto px-4 flex space-x-4">
+            <button onclick="mudarAba('dashboard')" class="tab-btn py-3 px-2 border-b-2 font-medium text-xs sm:text-sm transition flex items-center space-x-2 border-emerald-600 text-emerald-600" data-target="dashboard">
+                <i class="fa-solid fa-chart-pie"></i><span>Visão Geral</span>
+            </button>
+            <button onclick="mudarAba('precificacao')" class="tab-btn py-3 px-2 border-b-2 font-medium text-xs sm:text-sm transition flex items-center space-x-2 border-transparent text-slate-500 hover:text-slate-700" data-target="precificacao">
+                <i class="fa-solid fa-calculator"></i><span>Precificação</span>
+            </button>
+            <button onclick="mudarAba('curvaabc')" class="tab-btn py-3 px-2 border-b-2 font-medium text-xs sm:text-sm transition flex items-center space-x-2 border-transparent text-slate-500 hover:text-slate-700" data-target="curvaabc">
+                <i class="fa-solid fa-chart-line"></i><span>Curva ABC</span>
+            </button>
+            <button onclick="mudarAba('scanner')" class="tab-btn py-3 px-2 border-b-2 font-medium text-xs sm:text-sm transition flex items-center space-x-2 border-transparent text-slate-500 hover:text-slate-700" data-target="scanner">
+                <i class="fa-solid fa-barcode"></i><span>Scanner</span>
+            </button>
+            <button onclick="mudarAba('esg')" class="tab-btn py-3 px-2 border-b-2 font-medium text-xs sm:text-sm transition flex items-center space-x-2 border-transparent text-slate-500 hover:text-slate-700" data-target="esg">
+                <i class="fa-solid fa-recycle"></i><span>Crédito Verde</span>
+            </button>
+            <button onclick="mudarAba('auditoria')" class="tab-btn py-3 px-2 border-b-2 font-medium text-xs sm:text-sm transition flex items-center space-x-2 border-transparent text-slate-500 hover:text-slate-700" data-target="auditoria">
+                <i class="fa-solid fa-shield-halved"></i><span>Auditoria</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- ================================================================ -->
+    <!-- CONTEÚDO                                                          -->
+    <!-- ================================================================ -->
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 overflow-y-auto">
+
+        <!-- DASHBOARD -->
+        <section id="view-dashboard" class="space-y-6 view-section">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+                    <p class="text-xs text-slate-500 font-medium">Faturamento do Mês</p>
+                    <h3 class="text-2xl font-bold text-slate-900 mt-1" id="kpiFaturamento">R$ 0,00</h3>
+                    <span class="text-xs text-emerald-600 font-medium mt-2 inline-block">
+                        <i class="fa-solid fa-arrow-up"></i> <span id="kpiVariacao">0,0%</span> MoM
+                    </span>
+                </div>
+                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+                    <p class="text-xs text-slate-500 font-medium">Ticket Médio</p>
+                    <h3 class="text-2xl font-bold text-blue-600 mt-1" id="kpiTicket">R$ 0,00</h3>
+                    <span class="text-xs text-blue-500 font-medium mt-2 inline-block">
+                        <i class="fa-solid fa-receipt"></i> por venda
+                    </span>
+                </div>
+                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+                    <p class="text-xs text-slate-500 font-medium">Margem Média</p>
+                    <h3 class="text-2xl font-bold text-emerald-600 mt-1" id="kpiMargem">0,0%</h3>
+                    <span class="text-xs text-slate-500 font-medium mt-2 inline-block">
+                        <i class="fa-solid fa-percent"></i> consolidada
+                    </span>
+                </div>
+                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+                    <p class="text-xs text-slate-500 font-medium">Rupturas Ativas</p>
+                    <h3 class="text-2xl font-bold text-rose-600 mt-1" id="kpiRupturas">0</h3>
+                    <span class="text-xs text-rose-500 font-medium mt-2 inline-block">
+                        <i class="fa-solid fa-triangle-exclamation"></i> abaixo do mínimo
+                    </span>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+                    <h4 class="font-semibold text-slate-800 mb-4">Composição por Categoria</h4>
+                    <div id="chartCategorias" class="w-full h-72"></div>
+                </div>
+                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+                    <h4 class="font-semibold text-slate-800 mb-4">Crédito Verde & CO₂</h4>
+                    <div class="p-4 bg-slate-50 rounded-lg border border-slate-200 space-y-3">
+                        <div class="flex justify-between text-sm">
+                            <span class="text-slate-600">Crédito Verde:</span>
+                            <span class="font-bold text-emerald-600" id="kpiCreditoVerde">R$ 0,00</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-slate-600">CO₂ Evitado:</span>
+                            <span class="font-bold text-slate-900" id="kpiCO2">0 kg</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-slate-600">Resíduos Reciclados:</span>
+                            <span class="font-bold text-slate-900" id="kpiResiduos">0 kg</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- PRECIFICAÇÃO -->
+        <section id="view-precificacao" class="space-y-6 view-section hidden">
+            <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                <h3 class="font-bold text-lg text-slate-900 mb-2">Catálogo de Produtos</h3>
+                <p class="text-xs text-slate-500 mb-6">Preços sugeridos com base em markup e margem.</p>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-sm">
+                        <thead>
+                            <tr class="bg-slate-100 border-b border-slate-200 text-xs font-semibold text-slate-600 uppercase">
+                                <th class="p-3">SKU</th>
+                                <th class="p-3">Produto</th>
+                                <th class="p-3">Categoria</th>
+                                <th class="p-3">Custo</th>
+                                <th class="p-3">Markup</th>
+                                <th class="p-3">Preço Sugerido</th>
+                                <th class="p-3">Margem</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabelaProdutos" class="divide-y divide-slate-200"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm max-w-2xl mx-auto">
+                <h3 class="font-bold text-lg text-slate-900 mb-2">Simulador de Markup Divisor</h3>
+                <p class="text-xs text-slate-500 mb-6">Cálculo com tributos, despesas fixas e margem de lucro.</p>
+
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Custo de Aquisição (R$)</label>
+                        <input type="number" id="simCusto" value="10.00" step="0.01"
+                               class="w-full p-2.5 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Tributos (%)</label>
+                            <input type="number" id="simImpostos" value="12.0" step="0.1"
+                                   class="w-full p-2.5 border border-slate-300 rounded-lg text-sm outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">Despesas (%)</label>
+                            <input type="number" id="simDespesas" value="15.0" step="0.1"
+                                   class="w-full p-2.5 border border-slate-300 rounded-lg text-sm outline-none">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Margem Desejada (%)</label>
+                        <input type="number" id="simMargem" value="20.0" step="0.1"
+                               class="w-full p-2.5 border border-slate-300 rounded-lg text-sm outline-none">
+                    </div>
+                    <button onclick="calcularPrecificacao()"
+                            class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-2.5 rounded-lg transition shadow">
+                        Calcular Preço Ideal
+                    </button>
+                </div>
+
+                <div id="resultadoSimulador" class="mt-6 p-4 bg-slate-50 border border-slate-200 rounded-lg hidden space-y-2">
+                    <h4 class="font-semibold text-slate-800 text-sm">Resultado:</h4>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-slate-600">Markup Divisor:</span>
+                        <span class="font-bold text-slate-900" id="resMarkup">0.00</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-slate-600">Preço Sugerido:</span>
+                        <span class="font-bold text-emerald-600 text-base" id="resPrecoVenda">R$ 0,00</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CURVA ABC -->
+        <section id="view-curvaabc" class="space-y-6 view-section hidden">
+            <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+                <h3 class="font-bold text-lg text-slate-900 mb-1">Análise de Pareto (Curva ABC)</h3>
+                <p class="text-xs text-slate-500 mb-4">Classificação estratégica por faturamento.</p>
+                <div id="chartCurvaABC" class="w-full h-80"></div>
+            </div>
+        </section>
+
+        <!-- SCANNER -->
+        <section id="view-scanner" class="space-y-6 view-section hidden">
+            <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm max-w-2xl mx-auto">
+                <h3 class="font-bold text-lg text-slate-900 mb-2">
+                    <i class="fa-solid fa-barcode mr-2"></i> Terminal Scanner / PDV
+                </h3>
+                <p class="text-xs text-slate-500 mb-6">Leitura de código de barras com feedback instantâneo.</p>
+
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Código de Barras</label>
+                        <input type="text" id="scanCodigo" value="7891000100102"
+                               class="w-full p-3 border border-slate-300 rounded-lg text-sm font-mono focus:ring-2 focus:ring-emerald-500 outline-none">
+                    </div>
+                    <button onclick="processarScan()"
+                            class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-2.5 rounded-lg transition shadow">
+                        Processar Scan
+                    </button>
+                </div>
+
+                <div id="scanResultado" class="mt-6 hidden space-y-3"></div>
+            </div>
+        </section>
+
+        <!-- ESG -->
+        <section id="view-esg" class="space-y-6 view-section hidden">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+                    <p class="text-xs text-slate-500 font-medium">CO₂ Evitado</p>
+                    <h3 class="text-2xl font-bold text-emerald-600 mt-1" id="esgCO2">0 kg</h3>
+                </div>
+                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+                    <p class="text-xs text-slate-500 font-medium">Resíduos Reciclados</p>
+                    <h3 class="text-2xl font-bold text-blue-600 mt-1" id="esgResiduos">0 kg</h3>
+                </div>
+                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+                    <p class="text-xs text-slate-500 font-medium">Colaboradores</p>
+                    <h3 class="text-2xl font-bold text-slate-900 mt-1" id="esgColaboradores">0</h3>
+                </div>
+            </div>
+
+            <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+                <h4 class="font-semibold text-slate-800 mb-3">Conformidade de Governança</h4>
+                <div class="w-full bg-slate-200 rounded-full h-3 mb-2">
+                    <div id="esgGovernancaBar" class="bg-emerald-600 h-3 rounded-full transition-all" style="width: 0%"></div>
+                </div>
+                <p class="text-sm text-slate-600">
+                    Nível de Adequação: <strong id="esgGovernancaPct">0%</strong>
+                </p>
+            </div>
+        </section>
+
+        <!-- AUDITORIA -->
+        <section id="view-auditoria" class="space-y-6 view-section hidden">
+            <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+                <h3 class="font-bold text-lg text-slate-900 mb-1">Trilha de Auditoria</h3>
+                <p class="text-xs text-slate-500 mb-4">Registro de eventos e operações críticas.</p>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-sm">
+                        <thead>
+                            <tr class="bg-slate-100 border-b border-slate-200 text-xs font-semibold text-slate-600 uppercase">
+                                <th class="p-3">#</th>
+                                <th class="p-3">Data/Hora</th>
+                                <th class="p-3">Usuário</th>
+                                <th class="p-3">Evento</th>
+                                <th class="p-3">Módulo</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabelaAuditoria" class="divide-y divide-slate-200"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-slate-400 text-xs py-3 text-center">
+        InovaComércio MS v6.0 · Desenvolvido em Campo Grande - MS
+    </footer>
+
+    <!-- Scripts -->
+    <script src="api.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
