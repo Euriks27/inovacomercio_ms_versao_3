@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: inovacomercio_backend
+    ports:
+      - "5000:5000"
+    environment:
+      - APP_ENV=production
+      - SECRET_KEY=inovacomercio-secret-prod-key
+      - JWT_SECRET_KEY=inovacomercio-jwt-prod-key
+      - DATABASE_URL=sqlite:///inovacomercio.db
+      - REDIS_ENABLED=true
+      - REDIS_HOST=redis
+    volumes:
+      - ./backend/instance:/app/backend/instance
+    depends_on:
+      - redis
+    networks:
+      - inovacomercio_net
+
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    container_name: inovacomercio_frontend
+    ports:
+      - "8501:8501"
+    environment:
+      - API_URL=http://backend:5000/api/v1
+    depends_on:
+      - backend
+    networks:
+      - inovacomercio_net
+
+  redis:
+    image: redis:7-alpine
+    container_name: inovacomercio_redis
+    ports:
+      - "6379:6379"
+    networks:
+      - inovacomercio_net
+
+networks:
+  inovacomercio_net:
+    driver: bridge

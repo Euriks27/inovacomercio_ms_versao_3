@@ -1,0 +1,1 @@
+auth_bp = Blueprint("auth", __name__)
