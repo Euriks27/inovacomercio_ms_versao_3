@@ -1,0 +1,38 @@
+2026-10-02 07:40:33 | INICIO | banco=C:\Users\Euriks\OneDrive\Documentos\inovacomercio_ms_versao_3\backend\app\instance\inovacomercio.db | intervalo=300s | modo=unico
+2026-10-02 07:40:33 | CICLO  | 0 ruptura(s) em 0 produto(s) analisado(s)
+2026-10-02 07:40:43 | INICIO | banco=C:\Users\Euriks\OneDrive\Documentos\inovacomercio_ms_versao_3\backend\app\instance\inovacomercio.db | intervalo=300s | modo=unico
+2026-10-02 07:40:43 | ALERTA | Café Gourmet Orgânico 500g (SKU-0004) | estoque atual=3 abaixo do minimo=12
+2026-10-02 07:40:43 | ALERTA | Cerveja Artesanal IPA 500ml (SKU-0002) | estoque atual=6 abaixo do minimo=8
+2026-10-02 07:40:43 | CICLO  | 2 ruptura(s) em 4 produto(s) analisado(s)
+2026-10-02 07:41:12 | INICIO | banco=C:\Users\Euriks\OneDrive\Documentos\inovacomercio_ms_versao_3\backend\scripts\_smoke_test.db | intervalo=5s | modo=continuo
+2026-10-02 07:41:12 | ALERTA | Café Gourmet Orgânico 500g (SKU-0004) | estoque atual=3 abaixo do minimo=12
+2026-10-02 07:41:12 | ALERTA | Cerveja Artesanal IPA 500ml (SKU-0002) | estoque atual=6 abaixo do minimo=8
+2026-10-02 07:41:12 | CICLO  | 2 ruptura(s) em 4 produto(s) analisado(s)
+2026-10-02 07:41:17 | ALERTA | Café Gourmet Orgânico 500g (SKU-0004) | estoque atual=3 abaixo do minimo=12
+2026-10-02 07:41:17 | ALERTA | Cerveja Artesanal IPA 500ml (SKU-0002) | estoque atual=6 abaixo do minimo=8
+2026-10-02 07:41:17 | CICLO  | 2 ruptura(s) em 4 produto(s) analisado(s)
+2026-10-02 07:41:22 | ALERTA | Café Gourmet Orgânico 500g (SKU-0004) | estoque atual=3 abaixo do minimo=12
+2026-10-02 07:41:22 | ALERTA | Cerveja Artesanal IPA 500ml (SKU-0002) | estoque atual=6 abaixo do minimo=8
+2026-10-02 07:41:23 | CICLO  | 2 ruptura(s) em 4 produto(s) analisado(s)
+2026-10-02 08:04:45 | INICIO | banco=C:\Users\Euriks\AppData\Local\Temp\test_dedup.db | intervalo=300s | cooldown=3600s | modo=unico
+2026-10-02 08:04:45 | ALERTA | Café Gourmet Orgânico 500g (SKU-0004) | estoque atual=3 abaixo do minimo=12 (ja alertado, registro suprimido)
+2026-10-02 08:04:45 | ALERTA | Cerveja Artesanal IPA 500ml (SKU-0002) | estoque atual=6 abaixo do minimo=8 (ja alertado, registro suprimido)
+2026-10-02 08:04:45 | CICLO  | 2 ruptura(s), 0 alerta(s) registrado(s) em 4 produto(s) analisado(s)
+2026-10-02 08:04:45 | INICIO | banco=C:\Users\Euriks\AppData\Local\Temp\test_dedup.db | intervalo=300s | cooldown=3600s | modo=unico
+2026-10-02 08:04:45 | ALERTA | Café Gourmet Orgânico 500g (SKU-0004) | estoque atual=3 abaixo do minimo=12 (ja alertado, registro suprimido)
+2026-10-02 08:04:45 | ALERTA | Cerveja Artesanal IPA 500ml (SKU-0002) | estoque atual=6 abaixo do minimo=8 (ja alertado, registro suprimido)
+2026-10-02 08:04:45 | CICLO  | 2 ruptura(s), 0 alerta(s) registrado(s) em 4 produto(s) analisado(s)
+2026-10-02 08:04:52 | INICIO | banco=C:\Users\Euriks\AppData\Local\Temp\test_dedup.db | intervalo=300s | cooldown=3600s | modo=unico
+2026-10-02 08:04:52 | ALERTA | Café Gourmet Orgânico 500g (SKU-0004) | estoque atual=3 abaixo do minimo=12
+2026-10-02 08:04:52 | ALERTA | Cerveja Artesanal IPA 500ml (SKU-0002) | estoque atual=6 abaixo do minimo=8
+2026-10-02 08:04:52 | CICLO  | 2 ruptura(s), 2 alerta(s) registrado(s) em 4 produto(s) analisado(s)
+2026-10-02 08:04:53 | INICIO | banco=C:\Users\Euriks\AppData\Local\Temp\test_dedup.db | intervalo=300s | cooldown=3600s | modo=unico
+2026-10-02 08:04:53 | ALERTA | Café Gourmet Orgânico 500g (SKU-0004) | estoque atual=3 abaixo do minimo=12 (ja alertado, registro suprimido)
+2026-10-02 08:04:53 | ALERTA | Cerveja Artesanal IPA 500ml (SKU-0002) | estoque atual=6 abaixo do minimo=8 (ja alertado, registro suprimido)
+2026-10-02 08:04:53 | CICLO  | 2 ruptura(s), 0 alerta(s) registrado(s) em 4 produto(s) analisado(s)
+2026-10-02 08:04:53 | INICIO | banco=C:\Users\Euriks\AppData\Local\Temp\test_dedup.db | intervalo=300s | cooldown=0s | modo=unico
+2026-10-02 08:04:53 | ALERTA | Café Gourmet Orgânico 500g (SKU-0004) | estoque atual=3 abaixo do minimo=12
+2026-10-02 08:04:53 | ALERTA | Cerveja Artesanal IPA 500ml (SKU-0002) | estoque atual=6 abaixo do minimo=8
+2026-10-02 08:04:53 | CICLO  | 2 ruptura(s), 2 alerta(s) registrado(s) em 4 produto(s) analisado(s)
+2026-10-02 08:05:02 | INICIO | banco=C:\Users\Euriks\AppData\Local\Temp\test_dedup.db | intervalo=999s | cooldown=0s | modo=unico
+2026-10-02 08:05:02 | ALERTA | Café Gourmet Orgânico 500g (SKU-0004) | estoque atual=3 abaixo do minimo=12
