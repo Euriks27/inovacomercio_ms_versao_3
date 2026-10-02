@@ -1,16 +1,13 @@
 # -*- coding: utf-8 -*-
+"""Re-exporta os modelos oficiais (fonte única: backend/models/)."""
 from __future__ import annotations
 
-# Importe os modelos conforme forem criados
-# Exemplo:
-# from .produto import Produto
-# from .usuario import Usuario
-# from .venda import Venda
-# from .sustentabilidade import SustentabilidadeESG
+from backend.models import (
+    AuditLog,
+    EsgLog,
+    Product,
+    StockMovement,
+    Transaction,
+)
 
-__all__ = [
-    # "Produto",
-    # "Usuario",
-    # "Venda",
-    # "SustentabilidadeESG"
-]
+__all__ = ["Product", "AuditLog", "EsgLog", "StockMovement", "Transaction"]

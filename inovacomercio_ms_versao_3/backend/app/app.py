@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
+from datetime import timedelta
+from pathlib import Path
 from typing import List
 
 from flask import Flask, jsonify, request
@@ -14,21 +16,50 @@ from pydantic import BaseModel, Field
 
 # ✅ Instância única do db
 from backend.app.database import db
+from backend.app.cache.redis_limiter import rate_limit
 
 # ✅ Models extraídos
 from backend.app.models import AuditLog, Product
+
+# ✅ Blueprints dos módulos transacionais
+from backend.app.routes import (
+    esg_bp,
+    estoque_bp,
+    financeiro_bp,
+    pdv_bp,
+)
+
+# ✅ Configuração centralizada (.env / variáveis de ambiente)
+from backend.core.config import settings
 
 
 # ============================================================================
 # CONFIGURAÇÃO FLASK
 # ============================================================================
 
+def _resolve_sqlite_uri(uri: str) -> str:
+    """Fixa bancos SQLite relativos em backend/app/instance (independe do CWD)."""
+    prefixo = "sqlite:///"
+    if not uri.startswith(prefixo):
+        return uri
+    caminho = uri[len(prefixo):]
+    if not caminho or caminho == ":memory:" or caminho.startswith("/"):
+        return uri
+    arquivo = Path(caminho)
+    if arquivo.is_absolute():
+        return uri
+    instancia = Path(__file__).resolve().parent / "instance"
+    instancia.mkdir(parents=True, exist_ok=True)
+    return f"{prefixo}{(instancia / arquivo.name).as_posix()}"
+
+
 app = Flask(__name__)
 
 app.config.update(
-    SECRET_KEY="inovacomercio-secret",
-    JWT_SECRET_KEY="inovacomercio-jwt-secret",
-    SQLALCHEMY_DATABASE_URI="sqlite:///inovacomercio.db",
+    SECRET_KEY=settings.SECRET_KEY,
+    JWT_SECRET_KEY=settings.JWT_SECRET_KEY,
+    JWT_ACCESS_TOKEN_EXPIRES=timedelta(seconds=settings.JWT_ACCESS_TOKEN_EXPIRES),
+    SQLALCHEMY_DATABASE_URI=_resolve_sqlite_uri(settings.DATABASE_URL),
     SQLALCHEMY_TRACK_MODIFICATIONS=False,
 )
 
@@ -50,6 +81,12 @@ jwt = JWTManager(app)
 
 # ✅ Registra a instância única de db no app
 db.init_app(app)
+
+# ✅ Blueprints transacionais (estoque, financeiro, PDV, ESG)
+app.register_blueprint(estoque_bp)
+app.register_blueprint(financeiro_bp)
+app.register_blueprint(pdv_bp)
+app.register_blueprint(esg_bp)
 
 
 # ============================================================================
@@ -256,6 +293,7 @@ def health_check():
 
 
 @app.post("/api/v1/auth/login")
+@rate_limit()
 def login():
     data = request.get_json() or {}
     email = data.get("email")
@@ -269,7 +307,7 @@ def login():
     return jsonify(
         LoginResponse(
             access_token=token,
-            expires_in=3600,
+            expires_in=settings.JWT_ACCESS_TOKEN_EXPIRES,
             usuario=User(
                 nome="Gestor InovaComércio MS",
                 email=email,
@@ -349,6 +387,7 @@ def auditoria_eventos():
 
 @app.post("/api/v1/scanner/scan")
 @jwt_required()
+@rate_limit()
 def scanner_scan():
     data = request.get_json() or {}
     codigo = data.get("codigo", "7891000100102")
@@ -396,4 +435,4 @@ def scanner_scan():
 # ============================================================================
 
 if __name__ == "__main__":
-    app.run(host="127.0.0.1", port=5000, debug=True)
+    app.run(host=settings.APP_HOST, port=settings.APP_PORT, debug=settings.APP_DEBUG)
